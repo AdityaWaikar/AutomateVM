@@ -45,7 +45,7 @@ def fetch_vm_instances():
 
 # Compare data and update the Google Sheet
 #def compare_and_update(sheet_data, vm_instances):
-    updates = []
+  """  updates = []
     for row in sheet_data:
         vm_name, ip, machine_type, status = row
         if vm_name in vm_instances:
@@ -72,7 +72,7 @@ def fetch_vm_instances():
             ).execute()
             print(f"Updates made: {updates}")
         except HttpError as e:
-            print(f"An error occurred while updating: {e}")
+            print(f"An error occurred while updating: {e}") """
 def compare_and_update(sheet_data, vm_instances):
     updates = []
     for row in sheet_data:
