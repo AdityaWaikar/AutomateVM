@@ -44,7 +44,7 @@ def fetch_vm_instances():
     return vm_instances
 
 # Compare data and update the Google Sheet
-def compare_and_update(sheet_data, vm_instances):
+#def compare_and_update(sheet_data, vm_instances):
     updates = []
     for row in sheet_data:
         vm_name, ip, machine_type, status = row
@@ -73,6 +73,45 @@ def compare_and_update(sheet_data, vm_instances):
             print(f"Updates made: {updates}")
         except HttpError as e:
             print(f"An error occurred while updating: {e}")
+def compare_and_update(sheet_data, vm_instances):
+    updates = []
+    for row in sheet_data:
+        if len(row) < 4:  # Skip incomplete rows
+            print(f"Skipping incomplete row: {row}")
+            continue
+        
+        # Unpack the required columns
+        vm_name, ip, machine_type, status = row[:4]
+
+        if vm_name in vm_instances:
+            vm_data = vm_instances[vm_name]
+            # Check for any differences and prepare updates
+            if vm_data['ip'] != ip or vm_data['machine_type'] != machine_type or vm_data['status'] != status:
+                updates.append([
+                    vm_name, vm_data['ip'], vm_data['machine_type'], vm_data['status']
+                ])
+        else:
+            # Print the VM name if it's not found in Google Cloud
+            print(f"VM '{vm_name}' is not present in Google Cloud.")
+
+    if not updates:
+        print("No changes detected.")
+    else:
+        try:
+            body = {
+                "values": updates
+            }
+            sheets_service.spreadsheets().values().update(
+                spreadsheetId=SHEET_ID,
+                range=RANGE_NAME,
+                valueInputOption="RAW",
+                body=body
+            ).execute()
+            print(f"Updates made: {updates}")
+        except HttpError as e:
+            print(f"An error occurred while updating: {e}")
+
+
 
 if __name__ == "__main__":
     sheet_data = fetch_sheet_data()
